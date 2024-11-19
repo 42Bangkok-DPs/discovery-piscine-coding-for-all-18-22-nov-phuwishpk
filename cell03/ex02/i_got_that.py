@@ -4,7 +4,6 @@ def main():
     while True:
         user_input = input("What you gotta say? : ")
 
-        # Check if the input is "STOP"
         if user_input.strip().upper() == "STOP":
             break
         
