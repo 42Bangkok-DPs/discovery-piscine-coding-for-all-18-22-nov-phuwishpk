@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 def main():
     for i in range(11):
         table = [i * j for j in range(11)]
