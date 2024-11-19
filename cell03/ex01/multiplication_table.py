@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 def main():
     number = int(input("Enter a number:\n"))
 
