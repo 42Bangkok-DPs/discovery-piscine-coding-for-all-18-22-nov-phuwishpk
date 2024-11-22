@@ -1,15 +1,17 @@
-# main.py
-
-from rush.ex00.checkmate import checkmate
-
-def main():
-    board = """\
-R...
-.K..
-..P.
-....\
-"""
-    checkmate(board)
+#!/usr/bin/env python3
+from checkmate import validate_board, is_king_checked
 
 if __name__ == "__main__":
-    main()
+    board = [
+        "R.......",
+        ".K......",
+        "..P.....",
+        "........",
+        "........",
+        "........",
+        "........",
+        "........"
+    ]
+    
+    if validate_board(board):
+        is_king_checked(board)
