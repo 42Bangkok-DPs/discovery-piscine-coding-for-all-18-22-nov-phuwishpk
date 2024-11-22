@@ -1,53 +1,87 @@
-# checkmate.py
+def validate_board(board):
 
-def checkmate(board):
-    board = board.strip().split('\n')
     n = len(board)
-    king_pos = None
-    
-    directions = {
-        'R': [(0, 1), (1, 0), (0, -1), (-1, 0)],  # Rook
-        'B': [(1, 1), (1, -1), (-1, 1), (-1, -1)],  # Bishop
-        'Q': [(0, 1), (1, 0), (0, -1), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)],  # Queen
-    }
-    pawn_moves = [(-1, -1), (-1, 1)]  # Pawns capture diagonally forward
 
-    for i in range(n):
-        for j in range(n):
-            if board[i][j] == 'K':
-                king_pos = (i, j)
-                break
-        if king_pos:
+    if not all(len(row) == n for row in board):
+        print("Board is not square")
+        return False
+
+    king_count = sum(row.count('K') for row in board)
+    if king_count == 0:
+        print("No King on the board")
+        return False
+    elif king_count > 1:
+        print("Must have 1 King on the board")
+        return False
+
+    piece_counts = {
+        'P': 0,
+        'B': 0,
+        'R': 0,
+        'Q': 0,
+        'K': 0
+    }
+
+    for row in board:
+        for cell in row:
+            if cell in piece_counts:
+                piece_counts[cell] += 1
+            elif cell != '.':
+                print("Only P, B, R, Q, K, and . are allowed.")
+                return False
+
+    if piece_counts['Q'] > 1:
+        print("There must be exactly one Queen or fewer.")
+        return False
+    if piece_counts['B'] > 2:
+        print("There must be exactly two Bishops or fewer.")
+        return False
+    if piece_counts['P'] > 8:
+        print("There must be exactly eight Pawns or fewer.")
+        return False
+    if piece_counts['R'] > 2:
+        print("There must be exactly two Rooks or fewer.")
+        return False
+
+    return True
+
+def is_king_checked(board):
+    
+    n = len(board)
+
+    king_pos = None
+    for i, row in enumerate(board):
+        if 'K' in row:
+            king_pos = (i, row.index('K'))
             break
 
-    if not king_pos:
-        print("Fail")
-        return
-    
-    def can_attack(i, j, x, y, piece):
-        if piece in directions:
-            for dx, dy in directions[piece]:
-                nx, ny = i + dx, j + dy
-                while 0 <= nx < n and 0 <= ny < n:
-                    if (nx, ny) == (x, y):  # King found in the path
-                        return True
-                    if board[nx][ny] != '.':  # Blocked by another piece
-                        break
-                    nx, ny = nx + dx, ny + dy
-        
-        elif piece == 'P':
-            for dx, dy in pawn_moves:
-                if (i + dx, j + dy) == (x, y):
-                    return True
-        
-        return False
-    
-    for i in range(n):
-        for j in range(n):
-            piece = board[i][j]
-            if piece in directions or piece == 'P':
-                if can_attack(i, j, king_pos[0], king_pos[1], piece):
+    kx, ky = king_pos
+
+    def is_in_bounds(x, y):
+        return 0 <= x < n and 0 <= y < n
+
+    pawn_dirs = [(1, 1), (1, -1)]
+    bishop_dirs = [(-1, -1), (-1, 1), (1, -1), (1, 1)]
+    rook_dirs = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+    queen_dirs = bishop_dirs + rook_dirs
+
+    for dx, dy in pawn_dirs:
+        nx, ny = kx + dx, ky + dy
+        if is_in_bounds(nx, ny) and board[nx][ny] == 'P':
+            print("Success")
+            return
+
+    for piece, directions in [('B', bishop_dirs), ('R', rook_dirs), ('Q', queen_dirs)]:
+        for dx, dy in directions:
+            x, y = kx, ky
+            while True:
+                x, y = x + dx, y + dy
+                if not is_in_bounds(x, y):
+                    break
+                if board[x][y] == piece:
                     print("Success")
                     return
-    
+                elif board[x][y] != '.':
+                    break
+
     print("Fail")
